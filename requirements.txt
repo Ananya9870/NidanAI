@@ -1,0 +1,14 @@
+# --- Streamlit & UI ---
+streamlit
+python-dotenv
+pillow
+# --- AI & LLM ---
+groq
+# --- PDF & Document Processing ---
+PyPDF2
+# --- Voice & TTS ---
+gTTS
+# --- Identity & Security (Optional if using bcrypt for hashing) ---
+# passlib
+streamlit-js-eval
+geopy
