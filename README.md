@@ -1,14 +1,5 @@
 # 🏥 NidanAI
 ### AI-Powered Healthcare & Insurance Compliance Platform for Rural India
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.9+-3776AB?style=flat-square&logo=python&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Groq-LPU%20Inference-F55036?style=flat-square"/>
-  <img src="https://img.shields.io/badge/LLaMA-3.3--70B-7C3AED?style=flat-square"/>
-  <img src="https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white"/>
-</p>
-
 ---
 
 **Nidan** means *diagnosis* or *solution* in Hindi.
@@ -76,7 +67,7 @@ All guardrail rules live in a SQLite database, not hardcoded in a Python file. T
 Changes go live immediately. No restart needed.
 
 ```
-Admin Password: nidanai@admin
+Admin Password: secret
 ```
 
 ---
@@ -209,4 +200,4 @@ NidanAI is built for demonstration and informational purposes. It is not a subst
 
 ---
 
-<p align="center">Made with ❤️ for rural India &nbsp;·&nbsp; NidanAI v2.0</p>
+<p align="center">Made with ❤️ for rural India &nbsp;·&nbsp; Team Astra </p>
