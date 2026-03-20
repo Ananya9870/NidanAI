@@ -4,14 +4,14 @@
 
 **Nidan** means *diagnosis* or *solution*.
 
-Rural India has two big problems when it comes to healthcare — people don't understand their medical reports, and they have no idea which government schemes they qualify for. NidanAI tries to fix both. And for this hackathon, we went a step further and built a full AI-powered insurance claim adjudication agent on top of it.
+Rural India has two big problems when it comes to healthcare, people don't understand their medical reports, and they have no idea which government schemes they qualify for. NidanAI tries to fix both. And for this hackathon, we went a step further and built a full AI-powered insurance claim adjudication agent on top of it.
 
 ---
 
 ## Features
 
 ### 1. 🤖 AI Insurance Claim Agent
-> *The core hackathon submission — a domain-specialized autonomous agent for health insurance claim processing.*
+> *The core hackathon submission: a domain-specialized autonomous agent for health insurance claim processing.*
 
 You enter a patient's diagnosis and treatment. The agent does the rest.
 
@@ -56,7 +56,7 @@ Things the guardrail engine checks:
 ---
 
 ### 2. ⚙️ Dynamic Guardrails Admin Panel
-> *Manage compliance rules from a UI — no code changes needed.*
+> *Manage compliance rules from a UI, no code changes needed.*
 
 All guardrail rules live in a SQLite database, not hardcoded in a Python file. There's a password-protected admin panel where you can:
 - Add or remove plan exclusions
@@ -75,7 +75,7 @@ Admin Password: secret
 ### 3. 📍 Govt Scheme Finder *(Location-Aware)*
 > *Tell us your condition, we'll tell you what the government covers.*
 
-The app uses your browser's geolocation to detect your state automatically. Type in a condition or surgery name and it returns all relevant central and state-specific schemes — Ayushman Bharat, BSKY, MJPJAY, etc. — along with coverage details and how to enroll.
+The app uses your browser's geolocation to detect your state automatically. Type in a condition or surgery name and it returns all relevant central and state-specific schemes: Ayushman Bharat, BSKY, MJPJAY, etc. — along with coverage details and how to enroll.
 
 You can also manually select any other state to check for family members elsewhere.
 
@@ -84,7 +84,7 @@ You can also manually select any other state to check for family members elsewhe
 ### 4. 📄 Medical Report Analyzer
 > *Upload a report. Get a plain-language explanation.*
 
-Upload a photo or PDF of any medical report — blood test, X-ray, discharge summary — and the AI breaks it down into three levels:
+Upload a photo or PDF of any medical report: blood test, X-ray, discharge summary and the AI breaks it down into three levels:
 - **Summary** — what does this report say overall?
 - **Key Findings** — what values are abnormal and what do they mean?
 - **Action Plan** — what should you do next?
@@ -96,14 +96,14 @@ Supports Hindi, English, Odia, Bengali, Telugu, Marathi. Uses a vision model for
 ### 5. 💬 Gramin Seva Chatbot
 > *A health assistant that actually knows your history.*
 
-The chatbot pulls from your saved health profile (medical history, current medications) to give more relevant, safer answers. Responses are also read out loud using text-to-speech — useful for users who struggle with reading.
+The chatbot pulls from your saved health profile (medical history, current medications) to give more relevant, safer answers. Responses are also read out loud using text-to-speech useful for users who struggle with reading.
 
 Supports 7 languages: Hindi, English, Marathi, Bengali, Telugu, Odia, Assamese.
 
 ---
 
 ### 6. 💊 Common Medicine Guide
-Practical OTC suggestions for everyday issues — fever, cough, acidity, loose motion, body pain. Simple language, home care tips, and a clear reminder to see a doctor if symptoms persist.
+Practical OTC suggestions for everyday issues: fever, cough, acidity, loose motion, body pain. Simple language, home care tips, and a clear reminder to see a doctor if symptoms persist.
 
 ---
 
