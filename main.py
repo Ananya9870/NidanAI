@@ -7,16 +7,21 @@ from groq import Groq
 from gtts import gTTS
 from PyPDF2 import PdfReader
 
-# --- CORRECTED IMPORTS ---
+# --- IMPORTS ---
 from auth import *
 from patient_data import *
 from medical_guide import common_medicine_section
-from schemes_finder import schemes_section  # Naya location-aware feature
+from schemes_finder import schemes_section
+from claim_assistant import claim_assistant_section
+from icd_cpt_validator import validate_codes
+from guardrails_db import init_guardrails_db        # ✅ Dynamic guardrails DB
+from guardrails_admin import guardrails_admin_section  # ✅ Admin panel
 
 # --- 1. INITIALIZATION ---
 load_dotenv()
-init_db()          
-init_patient_db()   
+init_db()
+init_patient_db()
+init_guardrails_db()   # ✅ Guardrails DB initialize + seed defaults
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
@@ -27,13 +32,24 @@ if 'username' not in st.session_state:
 if 'messages' not in st.session_state:
     st.session_state.messages = []
 
+# Claim assistant session state
+if 'claim_age' not in st.session_state:
+    st.session_state['claim_age'] = 30
+if 'claim_gender' not in st.session_state:
+    st.session_state['claim_gender'] = 'Male'
+if 'claim_plan' not in st.session_state:
+    st.session_state['claim_plan'] = 'Ayushman Bharat (PMJAY)'
+if 'claim_diagnosis' not in st.session_state:
+    st.session_state['claim_diagnosis'] = ''
+if 'claim_treatment' not in st.session_state:
+    st.session_state['claim_treatment'] = ''
+
 # --- 2. CORE AI LOGIC ---
 
 def get_ai_response(user_input, language, patient_info, chat_history):
     history_context = ""
     for msg in chat_history[-5:]:
         history_context += f"{msg['role']}: {msg['content']}\n"
-
     system_prompt = f"""
     You are 'Gramin Seva AI', an empathetic medical chatbot.
     PATIENT PROFILE: {patient_info}
@@ -58,14 +74,11 @@ def get_report_explanation(content, language, is_image=False):
     try:
         if is_image:
             response = client.chat.completions.create(
-                messages=[{
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": system_prompt},
-                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{content}"}}
-                    ]
-                }],
-                model="meta-llama/llama-4-scout-17b-16e-instruct", 
+                messages=[{"role": "user", "content": [
+                    {"type": "text", "text": system_prompt},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{content}"}}
+                ]}],
+                model="meta-llama/llama-4-scout-17b-16e-instruct",
             )
         else:
             response = client.chat.completions.create(
@@ -81,15 +94,12 @@ def get_report_explanation(content, language, is_image=False):
 def report_analysis_section():
     st.subheader("📄 Smart Medical Report Analyzer (Photo/PDF)")
     st.write("Apni medical report ki photo khinchein ya PDF upload karein.")
-    
     lang = st.selectbox("Samajhne ke liye bhasha chunein:", ["Hindi", "English"])
     uploaded_file = st.file_uploader("Upload Report (PDF, JPG, PNG)", type=["pdf", "jpg", "jpeg", "png"])
-
     if st.button("Analyze Report ✨"):
         if uploaded_file is not None:
             with st.spinner("AI report ko scan kar raha hai..."):
                 file_type = uploaded_file.type
-                
                 if "image" in file_type:
                     base64_image = base64.b64encode(uploaded_file.read()).decode('utf-8')
                     analysis = get_report_explanation(base64_image, lang, is_image=True)
@@ -97,7 +107,6 @@ def report_analysis_section():
                     pdf_reader = PdfReader(uploaded_file)
                     text = "".join([page.extract_text() for page in pdf_reader.pages])
                     analysis = get_report_explanation(text, lang, is_image=False)
-                
                 st.markdown("### 💡 AI Analysis")
                 st.markdown(analysis)
                 st.info("⚠️ Note: Ye sirf jankari ke liye hai. Doctor se zaroor milein.")
@@ -126,16 +135,19 @@ def health_ai_section():
 
     if prompt := st.chat_input("Ask anything..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"): st.markdown(prompt)
+        with st.chat_message("user"):
+            st.markdown(prompt)
         with st.chat_message("assistant"):
             with st.spinner("AI is thinking..."):
                 response = get_ai_response(prompt, lang, p_context, st.session_state.messages)
                 st.markdown(response)
                 try:
-                    tts = gTTS(text=response.split('.')[0], lang='hi' if lang != "English" else 'en')
+                    audio_text = response[:500] if len(response) > 500 else response
+                    tts = gTTS(text=audio_text, lang='hi' if lang != "English" else 'en')
                     tts.save("voice.mp3")
                     st.audio("voice.mp3")
-                except: pass
+                except:
+                    pass
         st.session_state.messages.append({"role": "assistant", "content": response})
 
 def profile_section():
@@ -160,8 +172,14 @@ def profile_section():
 # --- 4. MAIN FLOW ---
 
 def main():
+    st.set_page_config(
+        page_title="NidanAI — Smart Healthcare",
+        page_icon="🏥",
+        layout="wide"
+    )
+
     if not st.session_state['logged_in']:
-        st.title("🏥 Gramin Seva AI")
+        st.title("🏥 NidanAI — Gramin Seva")
         choice = st.sidebar.selectbox("Action", ["Login", "SignUp", "Forgot Password"])
         if choice == "Login":
             u = st.text_input("Username")
@@ -171,33 +189,60 @@ def main():
                     st.session_state['logged_in'] = True
                     st.session_state['username'] = u
                     st.rerun()
-                else: st.error("Wrong credentials")
+                else:
+                    st.error("Wrong credentials")
         elif choice == "SignUp":
             u = st.text_input("New Username")
             p = st.text_input("New Password", type='password')
             if st.button("Register"):
-                try: add_userdata(u, make_hashes(p)); st.success("Done!")
-                except: st.error("Exists!")
+                try:
+                    add_userdata(u, make_hashes(p))
+                    st.success("Done!")
+                except:
+                    st.error("Username already exists!")
+        elif choice == "Forgot Password":
+            u = st.text_input("Username")
+            new_p = st.text_input("New Password", type='password')
+            if st.button("Reset Password"):
+                update_password(u, make_hashes(new_p))
+                st.success("Password reset successfully!")
     else:
-        st.sidebar.title(f"Hi, {st.session_state['username']}")
-        
-        # NAVIGATION
-        page = st.sidebar.radio("Navigation", 
-            ["Chatbot Dashboard", "Analyze Reports", "Common Medicines", "Govt Schemes", "My Profile"])
-        
-        if st.sidebar.button("Logout"):
+        st.sidebar.title(f"👋 Hi, {st.session_state['username']}")
+        st.sidebar.markdown("---")
+
+        page = st.sidebar.radio(
+            "🧭 Navigation",
+            [
+                "💬 Chatbot Dashboard",
+                "📄 Analyze Reports",
+                "💊 Common Medicines",
+                "🏛️ Govt Schemes",
+                "🏥 Insurance Claim Assistant",
+                "⚙️ Guardrails Admin",       # ✅ NEW
+                "📋 My Profile"
+            ]
+        )
+
+        if st.sidebar.button("🚪 Logout"):
             st.session_state['logged_in'] = False
             st.rerun()
-            
-        if page == "Chatbot Dashboard":
+
+        st.sidebar.markdown("---")
+        st.sidebar.caption("NidanAI v2.0 — Powered by Groq + Llama")
+
+        if page == "💬 Chatbot Dashboard":
             health_ai_section()
-        elif page == "Analyze Reports":
+        elif page == "📄 Analyze Reports":
             report_analysis_section()
-        elif page == "Common Medicines":
+        elif page == "💊 Common Medicines":
             common_medicine_section()
-        elif page == "Govt Schemes":
-            schemes_section()  # Naya feature call
-        else:
+        elif page == "🏛️ Govt Schemes":
+            schemes_section()
+        elif page == "🏥 Insurance Claim Assistant":
+            claim_assistant_section()
+        elif page == "⚙️ Guardrails Admin":
+            guardrails_admin_section()     # ✅ NEW
+        elif page == "📋 My Profile":
             profile_section()
 
 if __name__ == '__main__':
