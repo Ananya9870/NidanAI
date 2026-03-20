@@ -2,7 +2,7 @@
 ### AI-Powered Healthcare & Insurance Compliance Platform for Rural India
 ---
 
-**Nidan** means *diagnosis* or *solution* in Hindi.
+**Nidan** means *diagnosis* or *solution*.
 
 Rural India has two big problems when it comes to healthcare — people don't understand their medical reports, and they have no idea which government schemes they qualify for. NidanAI tries to fix both. And for this hackathon, we went a step further and built a full AI-powered insurance claim adjudication agent on top of it.
 
