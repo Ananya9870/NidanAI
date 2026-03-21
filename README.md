@@ -4,14 +4,15 @@
 
 **Nidan** means *diagnosis* or *solution*.
 
-Rural India has two big problems when it comes to healthcare, people don't understand their medical reports, and they have no idea which government schemes they qualify for. NidanAI tries to fix both. And for this hackathon, we went a step further and built a full AI-powered insurance claim adjudication agent on top of it.
+NidanAI started as a simple idea: what if someone in a village could understand their medical report without needing to pay a doctor just to explain it? That grew into a full healthcare platform, and for this hackathon, we added something much more ambitious: an AI agent that processes health insurance claims the way an experienced medical coder and compliance officer would.
+
 
 ---
 
 ## Features
 
-### 1. 🤖 AI Insurance Claim Agent
-> *The core hackathon submission: a domain-specialized autonomous agent for health insurance claim processing.*
+### 1. 🤖 Insurance Claim Agent
+> *The core hackathon submission: a domain specialized autonomous agent for health insurance claim processing.*
 
 You enter a patient's diagnosis and treatment. The agent does the rest.
 
@@ -38,7 +39,7 @@ You enter a patient's diagnosis and treatment. The agent does the rest.
   Output: Verdict + ICD/CPT Codes + Full Audit Trail
 ```
 
-**The compliance layer is the most important part.** Step 6 is a hardcoded rule engine that runs *completely independent of the AI*. So even if the LLM reasons incorrectly, this engine catches policy violations and overrides the verdict. The AI handles reasoning — the rule engine handles guarantees.
+**The compliance layer is the most important part.** Step 6 is a hardcoded rule engine that runs *completely independent of the AI*. So even if the LLM reasons incorrectly, this engine catches policy violations and overrides the verdict. The AI handles reasoning, the rule engine handles guarantees.
 
 Things the guardrail engine checks:
 - Excluded procedures per plan (cosmetic surgery, IVF, experimental drugs, self-harm)
@@ -75,14 +76,14 @@ Admin Password: secret
 ### 3. 📍 Govt Scheme Finder *(Location-Aware)*
 > *Tell us your condition, we'll tell you what the government covers.*
 
-The app uses your browser's geolocation to detect your state automatically. Type in a condition or surgery name and it returns all relevant central and state-specific schemes: Ayushman Bharat, BSKY, MJPJAY, etc. — along with coverage details and how to enroll.
+Most people in rural areas don't know which government health schemes they qualify for. The app uses your browser's geolocation to detect your state automatically. Type in a condition or surgery name and it returns all relevant central and state-specific schemes: Ayushman Bharat, BSKY, MJPJAY, etc. along with coverage details and how to enroll.
 
 You can also manually select any other state to check for family members elsewhere.
 
 ---
 
 ### 4. 📄 Medical Report Analyzer
-> *Upload a report. Get a plain-language explanation.*
+> *Upload a report. Get a plain language explanation.*
 
 Upload a photo or PDF of any medical report: blood test, X-ray, discharge summary and the AI breaks it down into three levels:
 - **Summary** — what does this report say overall?
@@ -96,19 +97,27 @@ Supports Hindi, English, Odia, Bengali, Telugu, Marathi. Uses a vision model for
 ### 5. 💬 Gramin Seva Chatbot
 > *A health assistant that actually knows your history.*
 
-The chatbot pulls from your saved health profile (medical history, current medications) to give more relevant, safer answers. Responses are also read out loud using text-to-speech useful for users who struggle with reading.
+The chatbot pulls from your saved health profile (medical history, current medications) to give more relevant, safer answers. So if you're on blood thinners and ask about a headache, it won't just give a generic response. Responses are also read out loud using text-to-speech useful for users who struggle with reading.
 
 Supports 7 languages: Hindi, English, Marathi, Bengali, Telugu, Odia, Assamese.
 
 ---
 
 ### 6. 💊 Common Medicine Guide
-Practical OTC suggestions for everyday issues: fever, cough, acidity, loose motion, body pain. Simple language, home care tips, and a clear reminder to see a doctor if symptoms persist.
+Practical OTC suggestions for everyday issues: fever, cough, acidity, loose motion, body pain. Simple language, home care tips, Written for people who don't have easy access to a doctor for minor issues. Always ends with a note to see a doctor if things don't get better, because it's an assistant, not a substitute.
 
 ---
 
 ### 7. 👤 Health Profile
 A personal health vault where users store their blood group, medical history, and current medications. This data is used by the chatbot and claim agent to give more personalized responses.
+
+---
+
+### ⚙️ How the compliance engine actually works
+The thing we're most proud of technically is the two-layer compliance design. Every claim goes through both layers, in order:
+The AI layer handles the reasoning by understanding clinical language, assigning codes, checking policy context, assessing medical necessity. It's good at nuanced judgment calls.
+The guardrail engine is a separate system that doesn't care what the AI said. It reads rules from a database and checks five things: whether the procedure is excluded under the plan, whether the patient's age violates any coverage restrictions, whether prior authorization is required, whether there are fraud signals like upcoding or unbundling, and whether the claim looks like a duplicate. If any high severity check fails, it overrides the verdict.
+This separation matters. AI models can hallucinate. They can miss edge cases. Having a hardcoded rule layer that runs independently means the system stays compliant even when the LLM reasons incorrectly. It's the same logic that makes critical systems use multiple independent checks instead of relying on one smart thing to get it right every time.
 
 ---
 
