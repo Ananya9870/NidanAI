@@ -1,5 +1,5 @@
 # 🏥 NidanAI
-### AI-Powered Healthcare & Insurance Compliance Platform for Rural India
+### AI Powered Healthcare & Insurance Compliance Platform for Rural India
 ---
 
 **Nidan** means *diagnosis* or *solution*.
