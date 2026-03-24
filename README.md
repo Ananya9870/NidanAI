@@ -68,7 +68,7 @@ All guardrail rules live in a SQLite database, not hardcoded in a Python file. T
 Changes go live immediately. No restart needed.
 
 ```
-Admin Password: secret
+Admin Password: nidanai@admin
 ```
 
 ---
